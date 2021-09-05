@@ -8,11 +8,13 @@ import android.view.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.udacity.locationreminder.R
 import com.udacity.locationreminder.base.BaseFragment
@@ -44,14 +46,49 @@ class SelectLocationFragment : BaseFragment() {
         mapFragment.getMapAsync { googleMap ->
             map = googleMap
             showUserLocation()
-//        TODO: add style to the map
-//        TODO: put a marker to location that the user selected
+            setMapStyle()
+            setMapClickBehavior()
         }
 
-//        TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
-
         return binding.root
+    }
+
+    private fun setButtonSaveBehavior() {
+        binding.buttonSave.setOnClickListener {
+            findNavController().popBackStack()
+        }
+    }
+
+    private fun setMapClickBehavior() {
+        map.setOnPoiClickListener { poi ->
+            map.clear()
+
+            _viewModel.selectedPOI.value = poi
+
+            val poiMarker = map.addMarker(
+                MarkerOptions()
+                    .position(poi.latLng)
+                    .title(poi.name)
+            )
+            poiMarker?.showInfoWindow()
+            enableSaveButton()
+        }
+    }
+
+    private fun enableSaveButton() {
+        binding.buttonSave.alpha = 1f
+        binding.buttonSave.isEnabled = true
+        binding.buttonSave.text = getString(R.string.save)
+        setButtonSaveBehavior()
+    }
+
+    private fun setMapStyle() {
+        map.setMapStyle(
+            MapStyleOptions.loadRawResourceStyle(
+                requireContext(),
+                R.raw.map_style
+            )
+        )
     }
 
     @SuppressLint("MissingPermission")
@@ -80,12 +117,6 @@ class SelectLocationFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
         enableMyLocation()
-    }
-
-    private fun onLocationSelected() {
-        //        TODO: When the user confirms on the selected location,
-        //         send back the selected location details to the view model
-        //         and navigate back to the previous fragment to save the reminder and add the geofence
     }
 
 

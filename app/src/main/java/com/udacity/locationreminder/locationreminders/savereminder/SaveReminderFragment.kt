@@ -10,11 +10,11 @@ import com.udacity.locationreminder.base.BaseFragment
 import com.udacity.locationreminder.base.NavigationCommand
 import com.udacity.locationreminder.databinding.FragmentSaveReminderBinding
 import com.udacity.locationreminder.utils.setDisplayHomeAsUpEnabled
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SaveReminderFragment : BaseFragment() {
     //Get the view model this time as a single to be shared with the another fragment
-    override val _viewModel: SaveReminderViewModel by inject()
+    override val _viewModel: SaveReminderViewModel by viewModel()
     private lateinit var binding: FragmentSaveReminderBinding
 
     override fun onCreateView(
