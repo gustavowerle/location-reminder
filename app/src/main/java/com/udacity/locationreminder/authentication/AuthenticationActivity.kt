@@ -1,24 +1,61 @@
 package com.udacity.locationreminder.authentication
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import com.firebase.ui.auth.AuthUI
 import com.udacity.locationreminder.R
+import com.udacity.locationreminder.authentication.AuthenticationViewModel.AuthenticationState
+import com.udacity.locationreminder.databinding.ActivityAuthenticationBinding
+import com.udacity.locationreminder.locationreminders.RemindersActivity
 
-/**
- * This class should be the starting point of the app, It asks the users to sign in / register, and redirects the
- * signed in users to the RemindersActivity.
- */
 class AuthenticationActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityAuthenticationBinding
+    private val viewModel by viewModels<AuthenticationViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_authentication)
-//         TODO: Implement the create account and sign in using FirebaseUI, use sign in using email and sign in using Google
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_authentication)
 
-//          TODO: If the user was authenticated, send him to RemindersActivity
+        binding.buttonLogin.setOnClickListener {
+            launchSignInFlow()
+        }
 
-//          TODO: a bonus is to customize the sign in flow to look nice using :
-        //https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#custom-layout
+        viewModel.authenticationState.observe(this, Observer { authenticationState ->
+            when (authenticationState) {
+                AuthenticationState.AUTHENTICATED -> {
+                    startActivity(Intent(this, RemindersActivity::class.java))
+                    finish()
+                }
+                else -> {
+                    binding.progressBarAutehntication.visibility = View.GONE
+                    binding.buttonLogin.visibility = View.VISIBLE
+                    Log.e(TAG, "Authentication required $authenticationState")
+                }
+            }
+        })
+    }
 
+    private fun launchSignInFlow() {
+        val providers = arrayListOf(
+            AuthUI.IdpConfig.EmailBuilder().build(), AuthUI.IdpConfig.GoogleBuilder().build()
+        )
+
+        startActivityForResult(
+            AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(
+                providers
+            ).build(), SIGN_IN_RESULT_CODE
+        )
+    }
+
+    companion object {
+        const val TAG = "LoginFragment"
+        const val SIGN_IN_RESULT_CODE = 1000
     }
 }
