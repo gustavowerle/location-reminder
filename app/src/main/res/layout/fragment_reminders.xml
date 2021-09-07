@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.udacity.locationreminder.locationreminders.reminderslist.RemindersListViewModel" />
+            type="com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel" />
     </data>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
