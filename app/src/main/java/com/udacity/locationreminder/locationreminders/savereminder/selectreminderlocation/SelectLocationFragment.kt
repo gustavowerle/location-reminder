@@ -64,6 +64,9 @@ class SelectLocationFragment : BaseFragment() {
             map.clear()
 
             _viewModel.selectedPOI.value = poi
+            _viewModel.latitude.value = poi.latLng.latitude
+            _viewModel.longitude.value = poi.latLng.longitude
+            _viewModel.reminderSelectedLocationStr.value = poi.name
 
             val poiMarker = map.addMarker(
                 MarkerOptions()
