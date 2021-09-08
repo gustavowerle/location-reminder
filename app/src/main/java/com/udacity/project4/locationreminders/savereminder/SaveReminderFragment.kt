@@ -22,12 +22,12 @@ import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
 
 class SaveReminderFragment : BaseFragment() {
     //Get the view model this time as a single to be shared with the another fragment
-    override val _viewModel: SaveReminderViewModel by viewModel()
+    override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
     private lateinit var geofencingClient: GeofencingClient
 
@@ -105,19 +105,23 @@ class SaveReminderFragment : BaseFragment() {
             addOnCompleteListener {
                 geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
                     addOnSuccessListener {
-                        Toast.makeText(
-                            requireContext(),
-                            R.string.geofence_added,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        activity?.apply {
+                            Toast.makeText(
+                                this,
+                                R.string.geofence_added,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         Log.d("Add Geofence", geofence.requestId)
                     }
                     addOnFailureListener {
-                        Toast.makeText(
-                            requireContext(),
-                            R.string.geofences_not_added,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        activity?.apply {
+                            Toast.makeText(
+                                this,
+                                R.string.geofences_not_added,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         if ((it.message != null)) {
                             Log.w(TAG, it.message.toString())
                         }
