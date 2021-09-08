@@ -85,6 +85,9 @@ class SaveReminderFragment : BaseFragment() {
 
     @SuppressLint("MissingPermission")
     private fun addGeofence(reminderData: ReminderDataItem) {
+        if (reminderData.latitude == null || reminderData.longitude == null) {
+            return
+        }
         val geofence = Geofence.Builder()
             .setRequestId(reminderData.id)
             .setCircularRegion(
@@ -101,7 +104,7 @@ class SaveReminderFragment : BaseFragment() {
             .addGeofence(geofence)
             .build()
 
-        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
+        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
             addOnCompleteListener {
                 geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
                     addOnSuccessListener {
