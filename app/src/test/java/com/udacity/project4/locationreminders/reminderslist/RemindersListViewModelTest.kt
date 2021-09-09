@@ -65,7 +65,7 @@ class RemindersListViewModelTest {
     }
 
     @Test
-    fun loadReminders_saveReminderCheck() = runBlocking {
+    fun loadRemindersTest() = runBlocking {
         val reminder = ReminderDTO(
             "Test",
             "",
@@ -82,7 +82,7 @@ class RemindersListViewModelTest {
     }
 
     @Test
-    fun loadReminders_showErrorMessageCheck() {
+    fun loadRemindersTestShowErrorMessage() {
         fakeDataSource.setError(true)
 
         viewModel.loadReminders()
