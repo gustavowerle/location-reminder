@@ -7,8 +7,16 @@ import com.udacity.project4.locationreminders.data.dto.Result
 class FakeDataSource : ReminderDataSource {
 
     private var remindersData: LinkedHashMap<String, ReminderDTO> = LinkedHashMap()
+    private var shouldShowError = false
+
+    fun setError(value: Boolean) {
+        shouldShowError = value
+    }
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
+        if (shouldShowError) {
+            return Result.Error(ERROR_MESSAGE)
+        }
         return Result.Success(remindersData.values.toList())
     }
 
@@ -17,6 +25,9 @@ class FakeDataSource : ReminderDataSource {
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
+        if (shouldShowError) {
+            return Result.Error(ERROR_MESSAGE)
+        }
         return if (remindersData[id] != null) {
             Result.Success(remindersData[id]!!)
         } else {
@@ -26,5 +37,9 @@ class FakeDataSource : ReminderDataSource {
 
     override suspend fun deleteAllReminders() {
         remindersData.clear()
+    }
+
+    companion object {
+        const val ERROR_MESSAGE = "ERROR MESSAGE"
     }
 }
