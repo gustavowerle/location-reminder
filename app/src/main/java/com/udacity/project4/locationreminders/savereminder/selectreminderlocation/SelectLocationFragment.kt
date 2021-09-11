@@ -16,6 +16,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PointOfInterest
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
@@ -63,10 +64,7 @@ class SelectLocationFragment : BaseFragment() {
         map.setOnPoiClickListener { poi ->
             map.clear()
 
-            _viewModel.selectedPOI.value = poi
-            _viewModel.latitude.value = poi.latLng.latitude
-            _viewModel.longitude.value = poi.latLng.longitude
-            _viewModel.reminderSelectedLocationStr.value = poi.name
+            savePoinOnViewModel(poi)
 
             val poiMarker = map.addMarker(
                 MarkerOptions()
@@ -111,10 +109,31 @@ class SelectLocationFragment : BaseFragment() {
                                 .position(latLong)
                                 .title("Your location")
                         )
+                        val poi = PointOfInterest(
+                            LatLng(location.latitude, location.longitude),
+                            "",
+                            "My Location"
+                        )
+
+                        val poiMarker = map.addMarker(
+                            MarkerOptions()
+                                .position(poi.latLng)
+                                .title(poi.name)
+                        )
+                        poiMarker?.showInfoWindow()
+                        savePoinOnViewModel(poi)
+                        enableSaveButton()
                     }
                 }
             }
         }
+    }
+
+    private fun savePoinOnViewModel(poi: PointOfInterest) {
+        _viewModel.selectedPOI.value = poi
+        _viewModel.latitude.value = poi.latLng.latitude
+        _viewModel.longitude.value = poi.latLng.longitude
+        _viewModel.reminderSelectedLocationStr.value = poi.name
     }
 
     override fun onResume() {
