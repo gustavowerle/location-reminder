@@ -1,30 +1,58 @@
 package com.udacity.project4
 
 import android.app.Application
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.rule.ActivityTestRule
+import com.udacity.project4.authentication.AuthenticationViewModel
+import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.util.DataBindingIdlingResource
+import com.udacity.project4.util.EspressoIdlingResource
+import com.udacity.project4.util.monitorActivity
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
-import org.koin.test.AutoCloseKoinTest
+import org.koin.test.KoinTest
 import org.koin.test.get
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@ExperimentalCoroutinesApi
 //END TO END test to black box test the app
 class RemindersActivityTest :
-    AutoCloseKoinTest() {// Extended Koin Test - embed autoclose @after method to close Koin after every test
+    KoinTest {// Extended Koin Test - embed autoclose @after method to close Koin after every test
 
+    @get:Rule
+    var activityScenarioRule = ActivityScenarioRule(RemindersActivity::class.java)
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    @get:Rule
+    val activityTestRule = ActivityTestRule(RemindersActivity::class.java)
+
+    private val dataBindingIdlingResource = DataBindingIdlingResource()
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
 
@@ -33,10 +61,11 @@ class RemindersActivityTest :
      * at this step we will initialize Koin related code to be able to use it in out testing.
      */
     @Before
-    fun init() {
+    fun setup() {
         stopKoin()//stop the original app koin
         appContext = getApplicationContext()
         val myModule = module {
+            viewModel { AuthenticationViewModel() }
             viewModel {
                 RemindersListViewModel(
                     appContext,
@@ -54,6 +83,7 @@ class RemindersActivityTest :
         }
         //declare a new koin module
         startKoin {
+            androidContext(appContext)
             modules(listOf(myModule))
         }
         //Get our real repository
@@ -63,9 +93,50 @@ class RemindersActivityTest :
         runBlocking {
             repository.deleteAllReminders()
         }
+
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
+        IdlingRegistry.getInstance().register(dataBindingIdlingResource)
     }
 
+    @After
+    fun tearDown() {
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
+        IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+    }
 
-//    TODO: add End to End testing to the app
+    @Test
+    fun testRemindersListWithNoData() {
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        onView(withId(R.id.noDataTextView)).check(matches(withText("No Data")))
+
+        activityScenario.close()
+    }
+
+    @Test
+    fun testAddNewReminder() {
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        onView(withId(R.id.addReminderFAB)).perform(click())
+        onView(withId(R.id.selectLocation)).check(matches(isDisplayed()))
+        onView(withId(R.id.selectLocation)).perform(click())
+        onView(withId(R.id.buttonSave)).check(matches(isDisplayed()))
+        onView(withId(R.id.map)).perform(click())
+        onView(withId(R.id.buttonSave)).perform(click())
+        onView(withId(R.id.reminderTitle)).check(matches(isDisplayed()))
+        onView(withId(R.id.reminderTitle)).perform(
+            typeText("Title Test"),
+            closeSoftKeyboard()
+        )
+        onView(withId(R.id.reminderDescription)).perform(
+            typeText("Description of my test location"),
+            closeSoftKeyboard()
+        )
+        onView(withId(R.id.saveReminder)).perform(click())
+
+        activityScenario.close()
+    }
 
 }
