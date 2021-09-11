@@ -54,6 +54,11 @@ class SelectLocationFragment : BaseFragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        enableMyLocation()
+    }
+
     private fun setButtonSaveBehavior() {
         binding.buttonSave.setOnClickListener {
             findNavController().popBackStack()
@@ -136,12 +141,6 @@ class SelectLocationFragment : BaseFragment() {
         _viewModel.reminderSelectedLocationStr.value = poi.name
     }
 
-    override fun onResume() {
-        super.onResume()
-        enableMyLocation()
-    }
-
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
     }
@@ -173,18 +172,6 @@ class SelectLocationFragment : BaseFragment() {
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_LOCATION_PERMISSION
             )
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.size > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                enableMyLocation()
-            }
         }
     }
 
