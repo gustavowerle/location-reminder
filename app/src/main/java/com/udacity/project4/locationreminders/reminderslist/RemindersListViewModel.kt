@@ -25,7 +25,7 @@ class RemindersListViewModel(
         viewModelScope.launch {
             //interacting with the dataSource has to be through a coroutine
             val result = dataSource.getReminders()
-            showLoading.postValue(false)
+            showLoading.value = false
             when (result) {
                 is Result.Success<*> -> {
                     val dataList = ArrayList<ReminderDataItem>()

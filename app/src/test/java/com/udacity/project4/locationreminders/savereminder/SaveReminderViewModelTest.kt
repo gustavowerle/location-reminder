@@ -1,6 +1,5 @@
 package com.udacity.project4.locationreminders.savereminder
 
-import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.udacity.project4.R
@@ -17,12 +16,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
-import org.robolectric.annotation.Config
 import java.util.*
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.P])
 class SaveReminderViewModelTest {
 
     @ExperimentalCoroutinesApi

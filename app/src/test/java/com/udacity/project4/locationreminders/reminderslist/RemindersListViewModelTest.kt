@@ -1,6 +1,5 @@
 package com.udacity.project4.locationreminders.reminderslist
 
-import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.udacity.project4.locationreminders.MainCoroutineRule
@@ -16,15 +15,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
-import org.robolectric.annotation.Config
 import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
-@Config(sdk = [Build.VERSION_CODES.P])
 class RemindersListViewModelTest {
 
-    @ExperimentalCoroutinesApi
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
